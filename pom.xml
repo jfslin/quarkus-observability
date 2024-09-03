@@ -71,6 +71,17 @@
             <version>3.26.3</version>
         </dependency>
 
+
+
+
+
+
+
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-logging</artifactId>
+        </dependency>
+
         <!-- Minimal test dependencies to *-deployment artifacts for consistent build order -->
 <!--        <dependency>-->
 <!--            <groupId>io.quarkus</groupId>-->
