@@ -1,10 +1,4 @@
-package org.acme;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.quarkus.security.User;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonParseException;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonMappingException;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+package org.acme.support;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -16,6 +10,9 @@ import java.util.Base64;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GrafanaClient {
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -71,12 +68,6 @@ public class GrafanaClient {
                         ref.set(user);
                     } catch (JsonProcessingException e) {
                         throw new UncheckedIOException(e);
-                    } catch (JsonMappingException e) {
-                        throw new RuntimeException(e);
-                    } catch (JsonParseException e) {
-                        throw new RuntimeException(e);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
                     }
                 });
         return ref.get();
@@ -91,6 +82,25 @@ public class GrafanaClient {
                 (r, b) -> {
                     try {
                         QueryResult result = MAPPER.readValue(b, QueryResult.class);
+                        ref.set(result);
+                    } catch (JsonProcessingException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
+        return ref.get();
+    }
+
+    public TempoResult traces(String service, int limit, int spss) {
+        AtomicReference<TempoResult> ref = new AtomicReference<>();
+        String path = "/api/datasources/proxy/uid/tempo/api/search?q=%7Bresource.service.name%3D%22"
+                + service + "%22%7D&limit=" + limit + "&spss=" + spss;
+        handle(
+                path,
+                HttpRequest.Builder::GET,
+                HttpResponse.BodyHandlers.ofString(),
+                (r, b) -> {
+                    try {
+                        TempoResult result = MAPPER.readValue(b, TempoResult.class);
                         ref.set(result);
                     } catch (JsonProcessingException e) {
                         throw new UncheckedIOException(e);

@@ -19,6 +19,8 @@ public class GreetingResource {
 
     @PostConstruct
     public void start() {
+        int[] arr = {10};
+
         Gauge.builder("xvalue", arr, a -> arr[0])
                 .baseUnit("X")
                 .description("Some random x")
